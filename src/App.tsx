@@ -1,11 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function App() {
   const [isJump, setIsJump] = useState(false);
+  const [showBird, setShowBird] = useState(false);
+
+  useEffect(() => {
+    // Show the bird after 4 seconds
+    const birdTimeout = setTimeout(() => {
+      setShowBird(true);
+    }, 4000);
+
+    return () => clearTimeout(birdTimeout);
+  }, []); // Run once on component mount
 
   const handleJump = () => {
     setIsJump(true);
-    setTimeout(() => setIsJump(false), 400); // Change jump state back after 1 second
+    setTimeout(() => setIsJump(false), 400); // Change jump state back after 400 milliseconds
   };
 
   return (
@@ -22,6 +32,14 @@ export default function App() {
         position: "relative", // Necessary for absolute positioning of elements
       }}
     >
+      {showBird && (
+        <img
+          style={{ width: "150px", position: "absolute", top: "60px", right: "40px" }}
+          src="/birds.gif"
+          alt="birds flying"
+        />
+      )}
+
       <img
         style={{
           position: "absolute",
