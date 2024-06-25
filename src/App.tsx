@@ -4,10 +4,11 @@ export default function App() {
   const [isJump, setIsJump] = useState(false);
   const [showBird, setShowBird] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [score, setScore] = useState(0);
 
   const manRef = useRef(null);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const pillarRefs = [useRef(null), useRef(null)]; // Assuming two pillars for simplicity
+  const lastPassedPillar = useRef(null); // Track the last passed pillar to avoid double counting
 
   useEffect(() => {
     const birdTimeout = setTimeout(() => {
@@ -29,6 +30,7 @@ export default function App() {
           if (pillar) {
             const pillarRect = pillar.getBoundingClientRect();
 
+            // Check for collision
             if (
               manRect.x < pillarRect.x + pillarRect.width &&
               manRect.x + manRect.width > pillarRect.x &&
@@ -37,6 +39,12 @@ export default function App() {
             ) {
               setGameOver(true);
               break;
+            }
+
+            // Check if the man has passed the pillar
+            if (pillarRect.x + pillarRect.width < manRect.x && lastPassedPillar.current !== pillar) {
+              setScore(prevScore => prevScore + 1);
+              lastPassedPillar.current = pillar; // Update the last passed pillar
             }
           }
         }
@@ -47,7 +55,7 @@ export default function App() {
       if (!gameOver) {
         checkCollision();
       }
-    }, 100); // Check for collision every 100ms
+    }, 100); // Check for collision and score update every 100ms
 
     return () => clearInterval(interval);
   }, [gameOver, pillarRefs]);
@@ -58,14 +66,21 @@ export default function App() {
   };
 
   if (gameOver) {
-    return <div className="flex flex-col p-24 gap-12">
-      <span className="text-center text-xl font-bold">Game over</span>
-      <button onClick={() => window.location.reload()} className="btn btn-primary">Restart Game</button>
-    </div>;
+    return (
+      <div className="flex flex-col p-24 gap-12">
+        <span className="text-center text-xl font-bold">Game over</span>
+        <button onClick={() => window.location.reload()} className="btn btn-primary">Restart Game</button>
+        <span className="text-center text-xl">Score: {score}</span>
+      </div>
+    );
   }
 
   return (
     <div className="container">
+      <div className="absolute top-12 left-12 btn btn-success">
+        Score : {score}
+      </div>
+      <div className="score">Score: {score}</div>
       {showBird && (
         <img
           className="birds"
