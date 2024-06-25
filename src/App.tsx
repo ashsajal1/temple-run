@@ -58,9 +58,9 @@ export default function App() {
   };
 
   if (gameOver) {
-    return <div className="game-over">
-      <span>Game over</span>
-      <button className="p-2 rounded">Restart Game</button>
+    return <div className="flex flex-col p-24 gap-12">
+      <span className="text-center text-xl font-bold">Game over</span>
+      <button onClick={() => window.location.reload()} className="btn btn-primary">Restart Game</button>
     </div>;
   }
 
