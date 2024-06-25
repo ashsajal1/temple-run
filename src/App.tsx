@@ -2,21 +2,12 @@ import { useState, useEffect, useRef } from "react";
 
 export default function App() {
   const [isJump, setIsJump] = useState(false);
-  const [showBird, setShowBird] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
 
   const manRef = useRef(null);
   const pillarRefs = [useRef(null), useRef(null)]; // Assuming two pillars for simplicity
   const lastPassedPillar = useRef(null); // Track the last passed pillar to avoid double counting
-
-  useEffect(() => {
-    const birdTimeout = setTimeout(() => {
-      setShowBird(true);
-    }, 4000);
-
-    return () => clearTimeout(birdTimeout);
-  }, []);
 
   useEffect(() => {
     const checkCollision = () => {
@@ -37,7 +28,7 @@ export default function App() {
               manRect.y < pillarRect.y + pillarRect.height &&
               manRect.y + manRect.height > pillarRect.y
             ) {
-              setGameOver(true);
+              // setGameOver(true);
               break;
             }
 
@@ -81,13 +72,13 @@ export default function App() {
         Score : {score}
       </div>
       <div className="score">Score: {score}</div>
-      {showBird && (
-        <img
-          className="birds"
-          src="/birds.gif"
-          alt="birds flying"
-        />
-      )}
+
+      <img
+        className="birds"
+        src="/birds.gif"
+        alt="birds flying"
+      />
+
 
       <img
         ref={manRef}
