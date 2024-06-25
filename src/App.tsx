@@ -1,63 +1,101 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function App() {
   const [isJump, setIsJump] = useState(false);
   const [showBird, setShowBird] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+
+  const manRef = useRef(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const pillarRefs = [useRef(null), useRef(null)]; // Assuming two pillars for simplicity
 
   useEffect(() => {
-    // Show the bird after 4 seconds
     const birdTimeout = setTimeout(() => {
       setShowBird(true);
     }, 4000);
 
     return () => clearTimeout(birdTimeout);
-  }, []); // Run once on component mount
+  }, []);
+
+  useEffect(() => {
+    const checkCollision = () => {
+      const man = manRef.current;
+      const pillars = pillarRefs.map(ref => ref.current);
+
+      if (man) {
+        const manRect = man.getBoundingClientRect();
+
+        for (const pillar of pillars) {
+          if (pillar) {
+            const pillarRect = pillar.getBoundingClientRect();
+
+            if (
+              manRect.x < pillarRect.x + pillarRect.width &&
+              manRect.x + manRect.width > pillarRect.x &&
+              manRect.y < pillarRect.y + pillarRect.height &&
+              manRect.y + manRect.height > pillarRect.y
+            ) {
+              setGameOver(true);
+              break;
+            }
+          }
+        }
+      }
+    };
+
+    const interval = setInterval(() => {
+      if (!gameOver) {
+        checkCollision();
+      }
+    }, 100); // Check for collision every 100ms
+
+    return () => clearInterval(interval);
+  }, [gameOver, pillarRefs]);
 
   const handleJump = () => {
     setIsJump(true);
-    setTimeout(() => setIsJump(false), 400); // Change jump state back after 400 milliseconds
+    setTimeout(() => setIsJump(false), 400);
   };
 
+  if (gameOver) {
+    return <h1 className="game-over">Game Over</h1>;
+  }
+
   return (
-    <div
-      style={{
-        backgroundImage: `url(/ground.png)`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        width: "100%",
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-end", // Align items to bottom for the jump effect
-        position: "relative", // Necessary for absolute positioning of elements
-      }}
-    >
+    <div className="container">
       {showBird && (
         <img
-          style={{ width: "150px", position: "absolute", top: "60px", right: "40px" }}
+          className="birds"
           src="/birds.gif"
           alt="birds flying"
         />
       )}
 
       <img
-        style={{
-          position: "absolute",
-          left: "40px",
-          width: "120px",
-          height: "130px",
-          bottom: isJump ? "200px" : "80px", // Adjust bottom position when jumping
-          transition: "bottom 0.5s ease", // Smooth transition for jump effect
-        }}
+        ref={manRef}
+        className="man"
+        style={{ bottom: isJump ? "200px" : "80px" }}
         src={`/man.gif`}
         alt="man running"
       />
 
-      <div style={{ position: "absolute", bottom: "40px", right: "120px" }}>
+      <div
+        ref={pillarRefs[0]}
+        className="pillar"
+        style={{ height: "100px", left: "100%" }}
+      ></div>
+
+      <div
+        ref={pillarRefs[1]}
+        className="pillar"
+        style={{ height: "110px", left: "150%" }}
+      ></div>
+
+      <div className="button-container">
         <button
           onClick={handleJump}
-          style={{ padding: "12px", borderRadius: "12px" }}
-          disabled={isJump} // Disable button during jump
+          className="button"
+          disabled={isJump}
         >
           Up
         </button>
