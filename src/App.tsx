@@ -28,7 +28,7 @@ export default function App() {
               manRect.y < pillarRect.y + pillarRect.height &&
               manRect.y + manRect.height > pillarRect.y
             ) {
-              // setGameOver(true);
+              setGameOver(true);
               break;
             }
 
@@ -68,10 +68,9 @@ export default function App() {
 
   return (
     <div className="container">
-      <div className="absolute top-12 left-12 btn btn-success">
+      <div className="absolute top-12 left-12 btn btn-success z-10">
         Score : {score}
       </div>
-      <div className="score">Score: {score}</div>
 
       <img
         className="birds"
