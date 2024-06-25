@@ -58,7 +58,10 @@ export default function App() {
   };
 
   if (gameOver) {
-    return <h1 className="game-over">Game Over</h1>;
+    return <div className="game-over">
+      <span>Game over</span>
+      <button className="p-2 rounded">Restart Game</button>
+    </div>;
   }
 
   return (
