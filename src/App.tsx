@@ -4,22 +4,37 @@ export default function App() {
   const [isJump, setIsJump] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
+  const [pillars, setPillars] = useState([]);
 
   const manRef = useRef(null);
-  const pillarRefs = [useRef(null), useRef(null)]; // Assuming two pillars for simplicity
   const lastPassedPillar = useRef(null); // Track the last passed pillar to avoid double counting
+
+  useEffect(() => {
+    // Function to create a new pillar
+    const createPillar = () => {
+      const height = Math.floor(Math.random() * 30) + 100; // Random height between 100 and 300
+      setPillars((prevPillars) => [
+        ...prevPillars,
+        { id: Date.now(), height, left: "100%" },
+      ]);
+    };
+
+    // Create a new pillar every 2-3 seconds
+    const pillarInterval = setInterval(createPillar, Math.random() * 1000 + 2000);
+
+    return () => clearInterval(pillarInterval);
+  }, []);
 
   useEffect(() => {
     const checkCollision = () => {
       const man = manRef.current;
-      const pillars = pillarRefs.map(ref => ref.current);
-
       if (man) {
         const manRect = man.getBoundingClientRect();
 
-        for (const pillar of pillars) {
-          if (pillar) {
-            const pillarRect = pillar.getBoundingClientRect();
+        pillars.forEach((pillar) => {
+          const pillarElement = document.getElementById(pillar.id);
+          if (pillarElement) {
+            const pillarRect = pillarElement.getBoundingClientRect();
 
             // Check for collision
             if (
@@ -29,16 +44,15 @@ export default function App() {
               manRect.y + manRect.height > pillarRect.y
             ) {
               setGameOver(true);
-              break;
             }
 
             // Check if the man has passed the pillar
-            if (pillarRect.x + pillarRect.width < manRect.x && lastPassedPillar.current !== pillar) {
-              setScore(prevScore => prevScore + 1);
-              lastPassedPillar.current = pillar; // Update the last passed pillar
+            if (pillarRect.x + pillarRect.width < manRect.x && lastPassedPillar.current !== pillar.id) {
+              setScore((prevScore) => prevScore + 1);
+              lastPassedPillar.current = pillar.id; // Update the last passed pillar
             }
           }
-        }
+        });
       }
     };
 
@@ -49,7 +63,7 @@ export default function App() {
     }, 100); // Check for collision and score update every 100ms
 
     return () => clearInterval(interval);
-  }, [gameOver, pillarRefs]);
+  }, [gameOver, pillars]);
 
   const handleJump = () => {
     setIsJump(true);
@@ -60,7 +74,9 @@ export default function App() {
     return (
       <div className="flex flex-col p-24 gap-12">
         <span className="text-center text-xl font-bold">Game over</span>
-        <button onClick={() => window.location.reload()} className="btn btn-primary">Restart Game</button>
+        <button onClick={() => window.location.reload()} className="btn btn-primary">
+          Restart Game
+        </button>
         <span className="text-center text-xl">Score: {score}</span>
       </div>
     );
@@ -72,12 +88,7 @@ export default function App() {
         Score : {score}
       </div>
 
-      <img
-        className="birds"
-        src="/birds.gif"
-        alt="birds flying"
-      />
-
+      <img className="birds" src="/birds.gif" alt="birds flying" />
 
       <img
         ref={manRef}
@@ -87,24 +98,17 @@ export default function App() {
         alt="man running"
       />
 
-      <div
-        ref={pillarRefs[0]}
-        className="pillar"
-        style={{ height: "100px", left: "100%" }}
-      ></div>
-
-      <div
-        ref={pillarRefs[1]}
-        className="pillar"
-        style={{ height: "110px", left: "150%" }}
-      ></div>
+      {pillars.map((pillar) => (
+        <div
+          key={pillar.id}
+          id={pillar.id}
+          className="pillar"
+          style={{ height: `${pillar.height}px`, left: pillar.left }}
+        ></div>
+      ))}
 
       <div className="button-container">
-        <button
-          onClick={handleJump}
-          className="btn"
-          disabled={isJump}
-        >
+        <button onClick={handleJump} className="btn" disabled={isJump}>
           Up
         </button>
       </div>
