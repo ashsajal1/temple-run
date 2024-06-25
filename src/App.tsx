@@ -97,7 +97,7 @@ export default function App() {
       <div className="button-container">
         <button
           onClick={handleJump}
-          className="button"
+          className="btn"
           disabled={isJump}
         >
           Up
