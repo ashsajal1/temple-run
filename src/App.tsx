@@ -1,18 +1,24 @@
 import { useState, useEffect, useRef } from "react";
 
-export default function App() {
-  const [isJump, setIsJump] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
-  const [score, setScore] = useState(0);
-  const [pillars, setPillars] = useState([]);
+type Pillar = {
+  id: number;
+  height: number;
+  left: string;
+};
 
-  const manRef = useRef(null);
-  const lastPassedPillar = useRef(null); // Track the last passed pillar to avoid double counting
+export default function App() {
+  const [isJump, setIsJump] = useState<boolean>(false);
+  const [gameOver, setGameOver] = useState<boolean>(false);
+  const [score, setScore] = useState<number>(0);
+  const [pillars, setPillars] = useState<Pillar[]>([]);
+
+  const manRef = useRef<HTMLImageElement>(null);
+  const lastPassedPillar = useRef<number | null>(null); // Track the last passed pillar to avoid double counting
 
   useEffect(() => {
     // Function to create a new pillar
     const createPillar = () => {
-      const height = Math.floor(Math.random() * 30) + 100; // Random height between 100 and 300
+      const height = Math.floor(Math.random() * 30) + 100; // Random height between 100 and 130
       setPillars((prevPillars) => [
         ...prevPillars,
         { id: Date.now(), height, left: "100%" },
@@ -32,7 +38,7 @@ export default function App() {
         const manRect = man.getBoundingClientRect();
 
         pillars.forEach((pillar) => {
-          const pillarElement = document.getElementById(pillar.id);
+          const pillarElement = document.getElementById(pillar.id.toString());
           if (pillarElement) {
             const pillarRect = pillarElement.getBoundingClientRect();
 
@@ -101,7 +107,7 @@ export default function App() {
       {pillars.map((pillar) => (
         <div
           key={pillar.id}
-          id={pillar.id}
+          id={pillar.id.toString()}
           className="pillar"
           style={{ height: `${pillar.height}px`, left: pillar.left }}
         ></div>
